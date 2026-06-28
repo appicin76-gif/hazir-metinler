@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (closeModalBtn) closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
     window.addEventListener("click", (e) => { if(editModal && e.target === editModal) editModal.style.display = "none"; });
 
-    // Arka Plan Ayarları (Renk / Resim)
+    // Arka Plan Ayarları
     const bgColorPicker = document.getElementById("bgColorPicker");
     const bgImageUpper = document.getElementById("bgImageUpper");
     const resetBgBtn = document.getElementById("resetBg");
