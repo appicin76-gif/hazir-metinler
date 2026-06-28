@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hızlı Kopyala</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+    <div class="header">
+        <h3>🚀 Yanıt Paneli</h3>
+        <div class="header-controls">
+            <button id="sizeToggle" onclick="boyutDegistir()" title="Buton Boyutu">🔍 Boyut</button>
+            <button id="editToggle" onclick="modDegistir()">⚙️ Düzenle</button>
+        </div>
+    </div>
+
+    <!-- Düzenleme Modunda Açılacak Panel -->
+    <div id="editPanel" class="edit-panel" style="display: none;">
+        <button onclick="butonEkle()" class="panel-btn add-btn">➕ Yeni Buton Ekle</button>
+    </div>
+    
+    <div id="gridContainer" class="grid-container size-medium">
+        <!-- Butonlar JavaScript ile yüklenecek -->
+    </div>
+
+    <div id="toast">Panoya kopyalandı!</div>
+
+    <script src="./script.js"></script>
+</body>
+</html>

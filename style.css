@@ -1,0 +1,103 @@
+* { box-sizing: border-box; }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 450px;
+    margin-bottom: 10px;
+    height: 40px;
+}
+h3 { color: #333; margin: 0; font-size: 18px; }
+.header-controls { display: flex; gap: 8px; }
+#editToggle, #sizeToggle {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#sizeToggle { background: #007bff; color: white; }
+#editToggle { background: #6c757d; color: white; }
+#editToggle.active { background: #dc3545; }
+
+.edit-panel {
+    width: 100%;
+    max-width: 450px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+.panel-btn {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.add-btn { background: #28a745; color: white; }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+    max-width: 450px;
+    flex: 1;
+    align-content: start;
+    overflow-y: auto;
+}
+
+.copy-btn {
+    border: 1.5px solid #007bff;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 5px;
+    word-break: break-word;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+.copy-btn:active {
+    opacity: 0.7;
+}
+.copy-btn.edit-mode {
+    border: 1.5px dashed #ffc107 !important;
+}
+
+/* Boyut Ayarları */
+.size-small .copy-btn { height: 40px; font-size: 12px; }
+.size-medium .copy-btn { height: 52px; font-size: 14px; }
+.size-large .copy-btn { height: 65px; font-size: 16px; }
+
+#toast {
+    visibility: hidden;
+    min-width: 180px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 10px;
+    position: fixed;
+    z-index: 10;
+    bottom: 20px;
+    font-size: 13px;
+}
+#toast.show { visibility: visible; }
