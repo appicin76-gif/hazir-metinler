@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hazır Metinler</title>
-    <link rel="stylesheet" href="style.css?v=2">
-    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Üst Kontrol Paneli (Arka Plan Ayarları) -->
+    <!-- Üst Kontrol Paneli (Genel Arka Plan Ayarları) -->
     <div class="control-panel">
         <label for="bgColorPicker" class="control-btn">🎨 Renk Seç</label>
-        <input type="color" id="bgColorPicker" value="#f0f2f5">
+        <input type="color" id="bgColorPicker" value="#eef5fc">
 
         <label for="bgImageUpper" class="control-btn">🖼️ Resim Yükle</label>
         <input type="file" id="bgImageUpper" accept="image/*">
@@ -20,15 +19,61 @@
         <button id="resetBg" class="control-btn reset-btn">🔄 Sıfırla</button>
     </div>
 
-    <!-- Ana Konteyner -->
+    <!-- Ana Uygulama Paneli -->
     <div class="app-container">
-        <!-- İstenen Başlık Güncellemesi -->
-        <h1>Hazır Metinler</h1>
+        <div class="header-area">
+            <h1>🚀 Hazır Metinler</h1>
+            <div class="header-buttons">
+                <button id="editModeBtn" class="top-btn gray-btn">⚙️ Düzenle</button>
+            </div>
+        </div>
         
-        <!-- Butonların Dinamik Listeleneceği Alan -->
-        <div id="textButtonsContainer" class="buttons-grid"></div>
+        <!-- Yan yana 2'li düzen oluşturacak 16 adet dinamik buton alanı -->
+        <div class="buttons-grid" id="mainGridContainer">
+            <!-- Butonlar JavaScript tarafından 1'den 16'ya kadar otomatik üretilecek -->
+        </div>
     </div>
 
-    <script src="script.js?v=2"></script>
+    <!-- Gelişmiş Düzenleme ve Metin/Renk Ekleme Penceresi (Modal) -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+            <h3 id="modalTitle">Buton Düzenle</h3>
+            
+            <label>Buton Üzerindeki İsim:</label>
+            <input type="text" id="inputIsim" placeholder="Örn: Giriş Bilgilerim">
+
+            <label>Veri Tipi / Giriş Özelliği:</label>
+            <select id="selectType">
+                <option value="standart">Tek Parça Standart Metin</option>
+                <option value="tab-ayrimli">İki Metin Arası TAB (Kullanıcı Adı + Şifre)</option>
+                <option value="kart-ayrimli">Üç Kelime Arası TAB (Kredi Kartı Bilgileri)</option>
+            </select>
+
+            <!-- Dinamik Giriş Alanları -->
+            <div id="dynamicInputs">
+                <!-- Seçilen tipe göre burası JS ile değişecek -->
+            </div>
+
+            <label>Buton Jel Rengi Seçin:</label>
+            <div class="color-selector-grid">
+                <label class="color-radio btn-cyan"><input type="radio" name="btnColor" value="btn-cyan" checked> Turkuaz</label>
+                <label class="color-radio btn-purple"><input type="radio" name="btnColor" value="btn-purple"> Mor</label>
+                <label class="color-radio btn-green"><input type="radio" name="btnColor" value="btn-green"> Yeşil</label>
+                <label class="color-radio btn-red"><input type="radio" name="btnColor" value="btn-red"> Kırmızı</label>
+                <label class="color-radio btn-orange"><input type="radio" name="btnColor" value="btn-orange"> Turuncu</label>
+                <label class="color-radio btn-blue"><input type="radio" name="btnColor" value="btn-blue"> Mavi</label>
+                <label class="color-radio btn-black"><input type="radio" name="btnColor" value="btn-black"> Siyah</label>
+                <label class="color-radio btn-silver" style="color:#333;"><input type="radio" name="btnColor" value="btn-silver"> Gri</label>
+            </div>
+
+            <div class="modal-actions">
+                <button id="saveBtn" class="action-btn save-action">💾 Kaydet</button>
+                <button id="deleteBtn" class="action-btn delete-action">🗑️ Butonu Boşalt/Sil</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
