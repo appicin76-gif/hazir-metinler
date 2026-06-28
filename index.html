@@ -1,47 +1,34 @@
 <!DOCTYPE html>
 <html lang="tr">
-      
-    <!-- PWA Tanımlamaları -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker Kayıt Başarılı'))
-                    .catch(err => console.log('Hata:', err));
-            });
-        }
-    </script>
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hızlı Kopyala</title>
-    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hazır Metinler</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-    <div class="header">
-        <h3>🚀 Yanıt Paneli</h3>
-        <div class="header-controls">
-            <button id="sizeToggle" onclick="boyutDegistir()" title="Buton Boyutu">🔍 Boyut</button>
-            <button id="editToggle" onclick="modDegistir()">⚙️ Düzenle</button>
-        </div>
+    <!-- Üst Kontrol Paneli (Arka Plan Ayarları) -->
+    <div class="control-panel">
+        <label for="bgColorPicker" class="control-btn">🎨 Renk Seç</label>
+        <input type="color" id="bgColorPicker" value="#f0f2f5">
+
+        <label for="bgImageUpper" class="control-btn">🖼️ Resim Yükle</label>
+        <input type="file" id="bgImageUpper" accept="image/*">
+        
+        <button id="resetBg" class="control-btn reset-btn">🔄 Sıfırla</button>
     </div>
 
-    <!-- Düzenleme Modunda Açılacak Panel -->
-    <div id="editPanel" class="edit-panel" style="display: none;">
-        <button onclick="butonEkle()" class="panel-btn add-btn">➕ Yeni Buton Ekle</button>
-    </div>
-    
-    <div id="gridContainer" class="grid-container size-medium">
-        <!-- Butonlar JavaScript ile yüklenecek -->
+    <!-- Ana Konteyner -->
+    <div class="app-container">
+        <!-- İstenen Başlık Güncellemesi -->
+        <h1>Hazır Metinler</h1>
+        
+        <!-- Butonların Dinamik Listeleneceği Alan -->
+        <div id="textButtonsContainer" class="buttons-grid"></div>
     </div>
 
-    <div id="toast">Panoya kopyalandı!</div>
-
-    <script src="./script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
