@@ -5,11 +5,17 @@
     {
       "src": "https://flaticon.com",
       "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://flaticon.com",
+      "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "./index.html",
   "background_color": "#f0f2f5",
   "theme_color": "#007bff",
   "display": "standalone",
