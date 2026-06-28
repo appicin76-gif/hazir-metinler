@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const gridContainer = document.getElementById("mainGridContainer");
     const editModeBtn = document.getElementById("editModeBtn");
-    const addNewBtn = document.getElementById("addNewBtn"); // Yeni eklenen buton
     const editModal = document.getElementById("editModal");
     const closeModalBtn = document.getElementById("closeModalBtn");
     const selectType = document.getElementById("selectType");
@@ -13,82 +12,57 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeBtnId = null;
 
     // Yerel Hafızadan Buton Verilerini Yükle
-    let hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri"));
+    let hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri")) || {};
     
-    // Eğer hafıza tamamen boşsa ilk açılış için 4 tane örnek boş buton kuralı koyalım
-    if (!hafizaMetinleri) {
-        hafizaMetinleri = {
-            "btn_1": { isim: "", tip: "standart", renk: "btn-cyan", metin: "" },
-            "btn_2": { isim: "", tip: "standart", renk: "btn-purple", metin: "" },
-            "btn_3": { isim: "", tip: "standart", renk: "btn-green", metin: "" },
-            "btn_4": { isim: "", tip: "standart", renk: "btn-red", metin: "" }
-        };
-        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
-    }
-    
-    // Hafızadaki tüm butonları ekrana basan fonksiyon
-    function butonlariArayuzeBas() {
-        gridContainer.innerHTML = ""; // Önce içini temizle
-        Object.keys(hafizaMetinleri).forEach((btnId) => {
-            const btnData = hafizaMetinleri[btnId];
-            const button = document.createElement("button");
-            button.id = btnId;
-            button.className = `gel-button ${btnData.renk}`;
-            
-            // İsim yoksa buton id numarasını yaz
-            const num = btnId.split("_")[1];
-            button.innerText = btnData.isim ? btnData.isim : `Metin ${num}`;
-
-            if (isEditMode) button.classList.add("edit-shake");
-
-            button.addEventListener("click", () => {
-                if (isEditMode) {
-                    openEditModal(btnId);
-                } else {
-                    executeCopy(btnId);
-                }
-            });
-
-            gridContainer.appendChild(button);
-        });
-    }
-
-    // ➕ YENİ BUTON EKLEME MANTIĞI
-    addNewBtn.addEventListener("click", () => {
-        // Benzersiz yeni bir ID üret (Mevcut en yüksek sayıyı bulup 1 ekler)
-        const mevcutIdler = Object.keys(hafizaMetinleri).map(id => parseInt(id.split("_")[1]) || 0);
-        const enYuksekId = mevcutIdler.length > 0 ? Math.max(...mevcutIdler) : 0;
-        const yeniId = `btn_${enYuksekId + 1}`;
-
-        // Hafızaya boş şablon ekle
-        hafizaMetinleri[yeniId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
-        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
-        
-        // Arayüzü tazele ve otomatik olarak o butonun düzenleme panelini aç
-        butonlariArayuzeBas();
-        if (!isEditMode) {
-            editModeBtn.click(); // Kullanıcı rahat etsin diye düzenleme moduna geçir
+    // 16 Adet Butonu Yan Yana 2'li Olacak Şekilde Ekrana Bas
+    for (let i = 1; i <= 16; i++) {
+        const btnId = `btn_${i}`;
+        if (!hafizaMetinleri[btnId]) {
+            hafizaMetinleri[btnId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
         }
-        openEditModal(yeniId);
-    });
+
+        const btnData = hafizaMetinleri[btnId];
+        const button = document.createElement("button");
+        button.id = btnId;
+        button.className = `gel-button ${btnData.renk}`;
+        button.innerText = btnData.isim ? btnData.isim : `Metin ${i}`;
+
+        button.addEventListener("click", () => {
+            if (isEditMode) {
+                openEditModal(btnId);
+            } else {
+                executeCopy(btnId);
+            }
+        });
+
+        if (gridContainer) {
+            gridContainer.appendChild(button);
+        }
+    }
+    localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
 
     // Düzenle Modu Aç/Kapat
-    editModeBtn.addEventListener("click", () => {
-        isEditMode = !isEditMode;
-        editModeBtn.classList.toggle("active", isEditMode);
-        editModeBtn.innerText = isEditMode ? "⏸️ Çıkış" : "⚙️ Düzenle";
-        
-        Object.keys(hafizaMetinleri).forEach((btnId) => {
-            const btn = document.getElementById(btnId);
-            if (btn) btn.classList.toggle("edit-shake", isEditMode);
+    if (editModeBtn) {
+        editModeBtn.addEventListener("click", () => {
+            isEditMode = !isEditMode;
+            editModeBtn.classList.toggle("active", isEditMode);
+            editModeBtn.innerText = isEditMode ? "⏸️ Çıkış" : "⚙️ Düzenle";
+            
+            for (let i = 1; i <= 16; i++) {
+                const btn = document.getElementById(`btn_${i}`);
+                if (btn) btn.classList.toggle("edit-shake", isEditMode);
+            }
         });
-    });
+    }
 
-    selectType.addEventListener("change", () => {
-        updateDynamicInputs(selectType.value);
-    });
+    if (selectType) {
+        selectType.addEventListener("change", () => {
+            updateDynamicInputs(selectType.value);
+        });
+    }
 
     function updateDynamicInputs(type, currentData = null) {
+        if (!dynamicInputs) return;
         dynamicInputs.innerHTML = "";
         if (type === "tab-ayrimli") {
             dynamicInputs.innerHTML = `
@@ -115,12 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openEditModal(btnId) {
+        if (!editModal) return;
         activeBtnId = btnId;
         const currentData = hafizaMetinleri[btnId];
-        const num = btnId.split("_")[1];
-        document.getElementById("modalTitle").innerText = `Buton ${num} Ayarları`;
+        document.getElementById("modalTitle").innerText = `Buton ${btnId.split("_")[1]} Ayarları`;
         document.getElementById("inputIsim").value = currentData.isim || "";
-        selectType.value = currentData.tip || "standart";
+        selectType.value = currentData.type || "standart";
         
         updateDynamicInputs(currentData.tip, currentData);
 
@@ -130,47 +104,51 @@ document.addEventListener("DOMContentLoaded", () => {
         editModal.style.display = "block";
     }
 
-    saveBtn.addEventListener("click", () => {
-        if (!activeBtnId) return;
-        const type = selectType.value;
-        const chosenColor = document.querySelector('input[name="btnColor"]:checked').value;
-        const customName = document.getElementById("inputIsim").value;
+    if (saveBtn) {
+        saveBtn.addEventListener("click", () => {
+            if (!activeBtnId) return;
+            const type = selectType.value;
+            const chosenColor = document.querySelector('input[name="btnColor"]:checked').value;
+            const customName = document.getElementById("inputIsim").value;
 
-        let dataPatch = { isim: customName, tip: type, renk: chosenColor };
+            let dataPatch = { isim: customName, tip: type, renk: chosenColor };
 
-        if (type === "tab-ayrimli") {
-            dataPatch.metin1 = document.getElementById("val1").value;
-            dataPatch.metin2 = document.getElementById("val2").value;
-        } else if (type === "kart-ayrimli") {
-            dataPatch.veri1 = document.getElementById("val1").value;
-            dataPatch.veri2 = document.getElementById("val2").value;
-            dataPatch.veri3 = document.getElementById("val3").value;
-        } else {
-            dataPatch.metin = document.getElementById("val1").value;
-        }
+            if (type === "tab-ayrimli") {
+                dataPatch.metin1 = document.getElementById("val1").value;
+                dataPatch.metin2 = document.getElementById("val2").value;
+            } else if (type === "kart-ayrimli") {
+                dataPatch.veri1 = document.getElementById("val1").value;
+                dataPatch.veri2 = document.getElementById("val2").value;
+                dataPatch.veri3 = document.getElementById("val3").value;
+            } else {
+                dataPatch.metin = document.getElementById("val1").value;
+            }
 
-        hafizaMetinleri[activeBtnId] = dataPatch;
-        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
+            hafizaMetinleri[activeBtnId] = dataPatch;
+            localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
 
-        const btnEl = document.getElementById(activeBtnId);
-        btnEl.className = `gel-button ${chosenColor} ${isEditMode ? 'edit-shake' : ''}`;
-        btnEl.innerText = customName ? customName : `Metin ${activeBtnId.split("_")[1]}`;
+            const btnEl = document.getElementById(activeBtnId);
+            btnEl.className = `gel-button ${chosenColor} edit-shake`;
+            btnEl.innerText = customName ? customName : `Metin ${activeBtnId.split("_")[1]}`;
 
-        editModal.style.display = "none";
-    });
+            editModal.style.display = "none";
+        });
+    }
 
-    // 🗑️ BUTONU TAMAMEN SİLME MANTIĞI
-    deleteBtn.addEventListener("click", () => {
-        if (!activeBtnId) return;
-        
-        // Butonu hafızadan tamamen siler (Sadece içini boşaltmaz, listeyi daraltır)
-        delete hafizaMetinleri[activeBtnId];
-        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
+    if (deleteBtn) {
+        deleteBtn.addEventListener("click", () => {
+            if (!activeBtnId) return;
+            const num = activeBtnId.split("_")[1];
+            hafizaMetinleri[activeBtnId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
+            localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
 
-        // Değişikliği ekrana yansıt
-        butonlariArayuzeBas();
-        editModal.style.display = "none";
-    });
+            const btnEl = document.getElementById(activeBtnId);
+            btnEl.className = `gel-button btn-cyan edit-shake`;
+            btnEl.innerText = `Metin ${num}`;
+
+            editModal.style.display = "none";
+        });
+    }
 
     function executeCopy(btnId) {
         const data = hafizaMetinleri[btnId];
@@ -199,8 +177,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
-    window.addEventListener("click", (e) => { if(e.target === editModal) editModal.style.display = "none"; });
+    if (closeModalBtn) closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
+    window.addEventListener("click", (e) => { if(editModal && e.target === editModal) editModal.style.display = "none"; });
 
     // Arka Plan Kontrolleri
     const bgColorPicker = document.getElementById("bgColorPicker");
@@ -210,26 +188,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedBgColor = localStorage.getItem("appBgColor");
     const savedBgImage = localStorage.getItem("appBgImage");
     if (savedBgImage) document.body.style.backgroundImage = `url(${savedBgImage})`;
-    else if (savedBgColor) { document.body.style.backgroundColor = savedBgColor; bgColorPicker.value = savedBgColor; }
+    else if (savedBgColor) { document.body.style.backgroundColor = savedBgColor; if(bgColorPicker) bgColorPicker.value = savedBgColor; }
 
-    bgColorPicker.addEventListener("input", (e) => {
-        document.body.style.backgroundImage = "none";
-        document.body.style.backgroundColor = e.target.value;
-        localStorage.setItem("appBgColor", e.target.value);
-        localStorage.removeItem("appBgImage");
-    });
+    if (bgColorPicker) {
+        bgColorPicker.addEventListener("input", (e) => {
+            document.body.style.backgroundImage = "none";
+            document.body.style.backgroundColor = e.target.value;
+            localStorage.setItem("appBgColor", e.target.value);
+            localStorage.removeItem("appBgImage");
+        });
+    }
 
-    bgImageUpper.addEventListener("change", (e) => {
-        const file = e.target.files;
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                document.body.style.backgroundImage = `url(${event.target.result})`;
-                localStorage.setItem("appBgImage", event.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    if (bgImageUpper) {
+        bgImageUpper.addEventListener("change", (e) => {
+            const file = e.target.files;
+            if (file && file[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    document.body.style.backgroundImage = `url(${event.target.result})`;
+                    localStorage.setItem("appBgImage", event.target.result);
+                };
+                reader.readAsDataURL(file[0]);
+            }
+        });
+    }
 
-    resetBgBtn.addEventListener("click", () => {
-        localStorage.clear();
+    if (resetBgBtn) {
+        resetBgBtn.addEventListener("click", () => {
+            localStorage.clear();
+            document.body.style.backgroundImage = "none";
+            document.body.style.backgroundColor = "#eef5fc";
+            if(bgColorPicker) bgColorPicker.value = "#eef5fc";
+            location.reload();
+        });
+    }
+});
