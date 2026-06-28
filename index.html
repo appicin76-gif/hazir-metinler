@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hazır Metinler</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
@@ -25,16 +24,14 @@
         <div class="header-area">
             <h1>🚀 Hazır Metinler</h1>
             <div class="header-buttons">
-                <!-- AKTİF EDİLEN: Dinamik Yeni Buton Ekleme Düğmesi -->
-                <button id="addNewBtn" class="top-btn blue-btn">➕ Yeni Buton</button>
+                <!-- Ekleme Özelliği İçin Yeni Buton -->
+                <button id="addBtn" class="top-btn blue-btn">➕ Yeni Ekle</button>
                 <button id="editModeBtn" class="top-btn gray-btn">⚙️ Düzenle</button>
             </div>
         </div>
         
-        <!-- Yan yana 2'li düzen oluşturacak dinamik buton alanı -->
-        <div class="buttons-grid" id="mainGridContainer">
-            <!-- Butonlar JavaScript tarafından otomatik üretilecek -->
-        </div>
+        <!-- Yan yana 2'li düzen oluşturacak buton alanı -->
+        <div class="buttons-grid" id="mainGridContainer"></div>
     </div>
 
     <!-- Gelişmiş Düzenleme ve Metin/Renk Ekleme Penceresi (Modal) -->
@@ -54,9 +51,7 @@
             </select>
 
             <!-- Dinamik Giriş Alanları -->
-            <div id="dynamicInputs">
-                <!-- Seçilen tipe göre burası JS ile değişecek -->
-            </div>
+            <div id="dynamicInputs"></div>
 
             <label>Buton Jel Rengi Seçin:</label>
             <div class="color-selector-grid">
@@ -72,7 +67,7 @@
 
             <div class="modal-actions">
                 <button id="saveBtn" class="action-btn save-action">💾 Kaydet</button>
-                <button id="deleteBtn" class="action-btn delete-action">🗑️ Butonu Boşalt/Sil</button>
+                <button id="deleteBtn" class="action-btn delete-action">🗑️ Sil / Boşalt</button>
             </div>
         </div>
     </div>
