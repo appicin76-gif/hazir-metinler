@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const gridContainer = document.getElementById("mainGridContainer");
     const editModeBtn = document.getElementById("editModeBtn");
+    const addNewBtn = document.getElementById("addNewBtn"); // Yeni eklenen buton
     const editModal = document.getElementById("editModal");
     const closeModalBtn = document.getElementById("closeModalBtn");
     const selectType = document.getElementById("selectType");
@@ -12,32 +13,64 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeBtnId = null;
 
     // Yerel Hafızadan Buton Verilerini Yükle
-    let hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri")) || {};
+    let hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri"));
     
-    // 16 Adet Butonu Yan Yana 2'li Olacak Şekilde Ekrana Bas
-    for (let i = 1; i <= 16; i++) {
-        const btnId = `btn_${i}`;
-        if (!hafizaMetinleri[btnId]) {
-            hafizaMetinleri[btnId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
-        }
-
-        const btnData = hafizaMetinleri[btnId];
-        const button = document.createElement("button");
-        button.id = btnId;
-        button.className = `gel-button ${btnData.renk}`;
-        button.innerText = btnData.isim ? btnData.isim : `Metin ${i}`;
-
-        button.addEventListener("click", () => {
-            if (isEditMode) {
-                openEditModal(btnId);
-            } else {
-                executeCopy(btnId);
-            }
-        });
-
-        gridContainer.appendChild(button);
+    // Eğer hafıza tamamen boşsa ilk açılış için 4 tane örnek boş buton kuralı koyalım
+    if (!hafizaMetinleri) {
+        hafizaMetinleri = {
+            "btn_1": { isim: "", tip: "standart", renk: "btn-cyan", metin: "" },
+            "btn_2": { isim: "", tip: "standart", renk: "btn-purple", metin: "" },
+            "btn_3": { isim: "", tip: "standart", renk: "btn-green", metin: "" },
+            "btn_4": { isim: "", tip: "standart", renk: "btn-red", metin: "" }
+        };
+        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
     }
-    localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
+    
+    // Hafızadaki tüm butonları ekrana basan fonksiyon
+    function butonlariArayuzeBas() {
+        gridContainer.innerHTML = ""; // Önce içini temizle
+        Object.keys(hafizaMetinleri).forEach((btnId) => {
+            const btnData = hafizaMetinleri[btnId];
+            const button = document.createElement("button");
+            button.id = btnId;
+            button.className = `gel-button ${btnData.renk}`;
+            
+            // İsim yoksa buton id numarasını yaz
+            const num = btnId.split("_")[1];
+            button.innerText = btnData.isim ? btnData.isim : `Metin ${num}`;
+
+            if (isEditMode) button.classList.add("edit-shake");
+
+            button.addEventListener("click", () => {
+                if (isEditMode) {
+                    openEditModal(btnId);
+                } else {
+                    executeCopy(btnId);
+                }
+            });
+
+            gridContainer.appendChild(button);
+        });
+    }
+
+    // ➕ YENİ BUTON EKLEME MANTIĞI
+    addNewBtn.addEventListener("click", () => {
+        // Benzersiz yeni bir ID üret (Mevcut en yüksek sayıyı bulup 1 ekler)
+        const mevcutIdler = Object.keys(hafizaMetinleri).map(id => parseInt(id.split("_")[1]) || 0);
+        const enYuksekId = mevcutIdler.length > 0 ? Math.max(...mevcutIdler) : 0;
+        const yeniId = `btn_${enYuksekId + 1}`;
+
+        // Hafızaya boş şablon ekle
+        hafizaMetinleri[yeniId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
+        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
+        
+        // Arayüzü tazele ve otomatik olarak o butonun düzenleme panelini aç
+        butonlariArayuzeBas();
+        if (!isEditMode) {
+            editModeBtn.click(); // Kullanıcı rahat etsin diye düzenleme moduna geçir
+        }
+        openEditModal(yeniId);
+    });
 
     // Düzenle Modu Aç/Kapat
     editModeBtn.addEventListener("click", () => {
@@ -45,10 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
         editModeBtn.classList.toggle("active", isEditMode);
         editModeBtn.innerText = isEditMode ? "⏸️ Çıkış" : "⚙️ Düzenle";
         
-        for (let i = 1; i <= 16; i++) {
-            const btn = document.getElementById(`btn_${i}`);
+        Object.keys(hafizaMetinleri).forEach((btnId) => {
+            const btn = document.getElementById(btnId);
             if (btn) btn.classList.toggle("edit-shake", isEditMode);
-        }
+        });
     });
 
     selectType.addEventListener("change", () => {
@@ -84,7 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function openEditModal(btnId) {
         activeBtnId = btnId;
         const currentData = hafizaMetinleri[btnId];
-        document.getElementById("modalTitle").innerText = `Buton ${btnId.split("_")[1]} Ayarları`;
+        const num = btnId.split("_")[1];
+        document.getElementById("modalTitle").innerText = `Buton ${num} Ayarları`;
         document.getElementById("inputIsim").value = currentData.isim || "";
         selectType.value = currentData.tip || "standart";
         
@@ -119,22 +153,22 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
 
         const btnEl = document.getElementById(activeBtnId);
-        btnEl.className = `gel-button ${chosenColor} edit-shake`;
+        btnEl.className = `gel-button ${chosenColor} ${isEditMode ? 'edit-shake' : ''}`;
         btnEl.innerText = customName ? customName : `Metin ${activeBtnId.split("_")[1]}`;
 
         editModal.style.display = "none";
     });
 
+    // 🗑️ BUTONU TAMAMEN SİLME MANTIĞI
     deleteBtn.addEventListener("click", () => {
         if (!activeBtnId) return;
-        const num = activeBtnId.split("_")[1];
-        hafizaMetinleri[activeBtnId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
+        
+        // Butonu hafızadan tamamen siler (Sadece içini boşaltmaz, listeyi daraltır)
+        delete hafizaMetinleri[activeBtnId];
         localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
 
-        const btnEl = document.getElementById(activeBtnId);
-        btnEl.className = `gel-button btn-cyan edit-shake`;
-        btnEl.innerText = `Metin ${num}`;
-
+        // Değişikliği ekrana yansıt
+        butonlariArayuzeBas();
         editModal.style.display = "none";
     });
 
@@ -186,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     bgImageUpper.addEventListener("change", (e) => {
-        const file = e.target.files[0];
+        const file = e.target.files;
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -199,9 +233,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
     resetBgBtn.addEventListener("click", () => {
         localStorage.clear();
-        document.body.style.backgroundImage = "none";
-        document.body.style.backgroundColor = "#eef5fc";
-        bgColorPicker.value = "#eef5fc";
-        location.reload(); // Temiz bir sıfırlama için sayfayı yeniler
-    });
-});
