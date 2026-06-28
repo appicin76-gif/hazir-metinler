@@ -1,32 +1,25 @@
-const CACHE_NAME = 'hizli-pano-cache-v2';
+// sw.js dosyanızın en üstündeki ismi değiştirin
+const CACHE_NAME = 'hazir-metinler-cache-v2'; // v1 ise v2 yapın
 
-// Dosya yollarını GitHub Pages'in alt klasör yapısına göre esnetiyoruz
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll([
-                './',
-                'index.html',
-                'style.css',
-                'script.js',
-                'manifest.json'
-            ]).catch(err => console.log("Önbelleğe alma hatası yok sayıldı:", err));
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/style.css',
+  '/script.js',
+  '/manifest.json'
+];
+
+// Yeni kodların hemen devreye girmesi için "activate" olayını güncelleyin
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key); // Eski önbelleği siler
+          }
         })
-    );
-    self.skipWaiting();
-});
-
-self.addEventListener('activate', event => {
-    event.waitUntil(self.clients.claim());
-});
-
-// Chrome'un "Offline çalışabiliyor" onayını vermesini sağlayan zorunlu kod
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request).catch(() => {
-                return caches.match('index.html');
-            });
-        })
-    );
+      );
+    }).then(() => self.clients.claim()) // Yeni dosyaları hemen zorunlu kılar
+  );
 });
