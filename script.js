@@ -1,80 +1,122 @@
-// Örnek Hazır Metin Verileri (İçeriği dilediğiniz gibi çoğaltın)
-const hazirMetinler = [
-    { id: 1, metin: "Günaydın, dün kaldığımız yerden devam etmeye hazırım.", renkSınıfı: "btn-cyan" },
-    { id: 2, metin: "Harika bir çalışma oldu, elinize sağlık.", renkSınıfı: "btn-purple" },
-    { id: 3, metin: "İlgili dosyaları ve güncel dökümanları ekte iletiyorum.", renkSınıfı: "btn-green" },
-    { id: 4, metin: "Konuyla ilgili dönüşünüzü bekliyorum, iyi çalışmalar.", renkSınıfı: "btn-red" },
-    { id: 5, metin: "Toplantı linkini aşağıda bulabilirsiniz.", renkSınıfı: "btn-orange" },
-    { id: 6, metin: "Süreci yakından takip edip güncelliyor olacağım.", renkSınıfı: "btn-blue" },
-    { id: 7, metin: "Bu revizyonu en kısa sürede tamamlayıp iletiyorum.", renkSınıfı: "btn-black" }
-];
+// Hazır Metin Veritabanı ve Özel Giriş Özellikleri
+const hazirMetinler = {
+    btn1: { 
+        isim: "Sabah Giriş", 
+        metin: "Günaydın, dün kaldığımız yerden devam etmeye hazırım." 
+    },
+    btn2: { 
+        isim: "Teşekkür", 
+        metin: "Harika bir çalışma oldu, elinize sağlık." 
+    },
+    /* İKİ METİN ARASINDA TAB ÖZELLİĞİ (Örn: Kullanıcı Adı [TAB] Şifre) */
+    btn3: { 
+        isim: "Giriş Bilgileri (TAB)", 
+        tip: "tab-ayrimli",
+        metin1: "ornek_kullanici", 
+        metin2: "Sifre1234!" 
+    },
+    /* KREDİ KARTI İÇİN 3 KELİME / VERİ ARASINDA TAB ÖZELLİĞİ */
+    /* (Örn: Kart No [TAB] SKT [TAB] CVV) */
+    btn4: { 
+        isim: "Kredi Kartı (TAB)", 
+        tip: "kart-ayrimli",
+        veri1: "4355 8899 2233 1122", 
+        veri2: "12/29", 
+        veri3: "455" 
+    },
+    // Henüz özelleştirilmemiş (kullanıcı metin girmeden önceki) varsayılan butonlar:
+    btn5: { isim: "", metin: "" },
+    btn6: { isim: "", metin: "" },
+    btn7: { isim: "", metin: "" },
+    btn8: { isim: "", metin: "" },
+    btn9: { isim: "", metin: "" },
+    btn10: { isim: "", metin: "" },
+    btn11: { isim: "", metin: "" },
+    btn12: { isim: "", metin: "" },
+    btn13: { isim: "", metin: "" },
+    btn14: { isim: "", metin: "" },
+    btn15: { isim: "", metin: "" },
+    btn16: { isim: "", metin: "" }
+};
 
 document.addEventListener("DOMContentLoaded", () => {
-    const container = document.getElementById("textButtonsContainer");
+    // Üst Panel Ayarları (Hafızadan yükleme)
     const bgColorPicker = document.getElementById("bgColorPicker");
     const bgImageUpper = document.getElementById("bgImageUpper");
     const resetBgBtn = document.getElementById("resetBg");
 
-    // 1. Kayıtlı Arka Planı Yükle
     const savedBgColor = localStorage.getItem("appBgColor");
     const savedBgImage = localStorage.getItem("appBgImage");
+    if (savedBgImage) document.body.style.backgroundImage = `url(${savedBgImage})`;
+    else if (savedBgColor) { document.body.style.backgroundColor = savedBgColor; bgColorPicker.value = savedBgColor; }
 
-    if (savedBgImage) {
-        document.body.style.backgroundImage = `url(${savedBgImage})`;
-    } else if (savedBgColor) {
-        document.body.style.backgroundColor = savedBgColor;
-        bgColorPicker.value = savedBgColor;
-    }
+    // Butonları Yapılandırma Döngüsü
+    Object.keys(hazirMetinler).forEach((id, index) => {
+        const button = document.getElementById(id);
+        if (!button) return;
 
-    // 2. Metin Butonlarını Arayüze Ekle
-    hazirMetinler.forEach(item => {
-        const btn = document.createElement("button");
-        btn.className = `gel-button ${item.renkSınıfı}`;
-        btn.innerText = item.metin; // Buton yazısı yerine metnin kendisi yazılıyor
+        const veri = hazirMetinler[id];
+        
+        // 1. Kural: Eğer özel bir isim verilmişse onu yaz, yoksa varsayılan olarak "Metin [No]" yaz
+        const butonNumarasi = index + 1;
+        const gorunecekIsim = veri.isim ? veri.isim : `Metin ${butonNumarasi}`;
+        button.innerText = gorunecekIsim;
 
-        // Butona tıklandığında metni panoya kopyalama işlevi
-        btn.addEventListener("click", () => {
-            navigator.clipboard.writeText(item.metin).then(() => {
-                // Basit bir kopyalandı görsel efekti
-                const orijinalYazi = btn.innerText;
-                btn.innerText = "📋 Kopyalandı!";
-                setTimeout(() => { btn.innerText = orijinalYazi; }, 1200);
+        // 2. Kural: Tıklama ve Kopyalama Mantığı
+        button.addEventListener("click", () => {
+            let kopyalanacakIcerik = "";
+
+            // Tip kontrolüne göre panoya gidecek veriyi hazırlıyoruz
+            if (veri.tip === "tab-ayrimli") {
+                // İki metin arasında TAB karakteri (\t) ekler
+                kopyalanacakIcerik = `${veri.metin1}\t${veri.metin2}`;
+            } else if (veri.tip === "kart-ayrimli") {
+                // 3 kelime / veri arasında TAB karakteri (\t) ekler
+                kopyalanacakIcerik = `${veri.veri1}\t${veri.veri2}\t${veri.veri3}`;
+            } else {
+                // Standart tek parça düz metin
+                kopyalanacakIcerik = veri.metin;
+            }
+
+            // Eğer buton boşsa kopyalama yapma
+            if (!kopyalanacakIcerik) {
+                button.innerText = "⚠️ İçi Boş!";
+                setTimeout(() => { button.innerText = gorunecekIsim; }, 1000);
+                return;
+            }
+
+            // Panoya Kopyalama İşlemi
+            navigator.clipboard.writeText(kopyalanacakIcerik).then(() => {
+                button.innerText = "📋 Kopyalandı!";
+                setTimeout(() => { button.innerText = gorunecekIsim; }, 1200);
             });
         });
-
-        container.appendChild(btn);
     });
 
-    // 3. Arka Plan Renk Ataması Değişimi
+    // Arka Plan Kontrolleri
     bgColorPicker.addEventListener("input", (e) => {
-        const color = e.target.value;
         document.body.style.backgroundImage = "none";
-        document.body.style.backgroundColor = color;
-        localStorage.setItem("appBgColor", color);
+        document.body.style.backgroundColor = e.target.value;
+        localStorage.setItem("appBgColor", e.target.value);
         localStorage.removeItem("appBgImage");
     });
 
-    // 4. Arka Plan Resim Yükleme İşlemi (Base64 formatında hafızaya kaydeder)
     bgImageUpper.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(event) {
-                const base64Image = event.target.result;
-                document.body.style.backgroundImage = `url(${base64Image})`;
-                localStorage.setItem("appBgImage", base64Image);
+            reader.onload = (event) => {
+                document.body.style.backgroundImage = `url(${event.target.result})`;
+                localStorage.setItem("appBgImage", event.target.result);
             };
             reader.readAsDataURL(file);
         }
     });
 
-    // 5. Ayarları Sıfırlama Butonu
     resetBgBtn.addEventListener("click", () => {
-        localStorage.removeItem("appBgColor");
-        localStorage.removeItem("appBgImage");
+        localStorage.clear();
         document.body.style.backgroundImage = "none";
-        document.body.style.backgroundColor = "#f0f2f5";
-        bgColorPicker.value = "#f0f2f5";
-        bgImageUpper.value = "";
+        document.body.style.backgroundColor = "#eef5fc";
+        bgColorPicker.value = "#eef5fc";
     });
 });
