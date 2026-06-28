@@ -1,95 +1,203 @@
-/* Ana Paneli İlk Tasarımdaki Gibi Mavi Çerçeveli Yapıyoruz */
-.app-container {
-    width: 95%;
-    max-width: 800px;
-    background: #f4f9ff;          /* İç arka plan rengi */
-    border: 1px solid #bce0fd;    /* Mavi çerçeve çizgisi */
-    border-radius: 8px;           /* Köşe ovali */
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    margin: 20px auto;            /* Ortalamak için */
+/* ==========================================================================
+   1. GENEL SAYFA AYARLARI (Arka Plan Dinamik Kontrol Edilebilir)
+   ========================================================================== */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef5fc;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
     box-sizing: border-box;
 }
 
-/* Butonları Yan Yana İkili Sıralayan Grid Düzeni */
-.buttons-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important; /* Yan yana iki eşit sütun */
-    gap: 15px !important;                      /* Butonlar arası boşluk */
-    width: 100%;
+/* ==========================================================================
+   2. ÜST AYAR MENÜSÜ (Renk Seç, Resim Yükle, Sıfırla)
+   ========================================================================== */
+.control-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    padding: 10px 20px;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 25px;
+    z-index: 100;
 }
 
-/* Jel Kapsül Butonların Genişlik Ayarı */
+.control-panel input[type="color"], 
+.control-panel input[type="file"] {
+    display: none; /* Tarayıcının ham butonlarını gizliyoruz */
+}
+
+.control-btn {
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.control-btn:hover {
+    background: #f1f3f5;
+    transform: translateY(-1px);
+}
+
+.reset-btn {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+}
+
+.reset-btn:hover {
+    background: #e60000;
+}
+
+/* ==========================================================================
+   3. ANA KUTU TASARIMI (İlk Görseldeki Yanıt Paneli Çerçevesi)
+   ========================================================================== */
+.app-container {
+    width: 95%;
+    max-width: 850px;
+    background: #f4f9ff;
+    border: 1px solid #bce0fd;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    margin-bottom: 30px;
+    box-sizing: border-box;
+}
+
+/* Başlık Alanı Düzeni */
+.header-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #bce0fd;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.header-area h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+    font-weight: 700;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.top-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.blue-btn { background: #007bff; border-color: #0069d9; }
+.blue-btn:hover { background: #0056b3; }
+.gray-btn { background: #6c757d; border-color: #5a6268; }
+.gray-btn:hover { background: #111; }
+
+/* ==========================================================================
+   4. BUTON IZGARASI (Yan Yana İkili Grid Düzeni)
+   ========================================================================== */
+.buttons-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* Yan yana tam 2 eşit sütun */
+    gap: 16px !important;                      /* Butonlar arası boşluk */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   5. 3D JEL / CAM EFEKTLİ KAPSÜL BUTONLAR
+   ========================================================================== */
 .gel-button {
-    width: 100% !important; /* Grid hücresini tam kaplasın diye */
-    max-width: none !important;
-    padding: 14px 20px;
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: 15px 22px;
     font-size: 15px;
     font-weight: bold;
     color: white;
     border: none;
     cursor: pointer;
-    border-radius: 50px;
+    border-radius: 50px; /* Tam kapsül/elips şekli */
+    text-align: center;
+    white-space: normal;
+    word-wrap: break-word;
+    
+    /* 3D Jel parlaklığı veren gölgelendirmeler */
     box-shadow: 
         inset 0 4px 6px rgba(255, 255, 255, 0.6), 
         inset 0 -4px 6px rgba(0, 0, 0, 0.2),
-        0 4px 6px rgba(0, 0, 0, 0.1);
+        0 4px 8px rgba(0, 0, 0, 0.12);
+        
     position: relative;
     overflow: hidden;
-    transition: transform 0.1s;
-    /* Ana Paneli İlk Tasarımdaki Gibi Mavi Çerçeveli Yapıyoruz */
-.app-container {
-    width: 95%;
-    max-width: 800px;
-    background: #f4f9ff;          /* İç arka plan rengi */
-    border: 1px solid #bce0fd;    /* Mavi çerçeve çizgisi */
-    border-radius: 8px;           /* Köşe ovali */
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    margin: 20px auto;            /* Ortalamak için */
-    box-sizing: border-box;
+    transition: transform 0.1s ease;
 }
 
-/* Butonları Yan Yana İkili Sıralayan Grid Düzeni */
-.buttons-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important; /* Yan yana iki eşit sütun */
-    gap: 15px !important;                      /* Butonlar arası boşluk */
-    width: 100%;
+/* Jel butonun üzerindeki şık beyaz parlama çizgisi */
+.gel-button::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 12%;
+    width: 76%;
+    height: 38%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0));
+    border-radius: 15px;
+    pointer-events: none;
 }
 
-/* Jel Kapsül Butonların Genişlik Ayarı */
-.gel-button {
-    width: 100% !important; /* Grid hücresini tam kaplasın diye */
-    max-width: none !important;
-    padding: 14px 20px;
-    font-size: 15px;
-    font-weight: bold;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 50px;
-    box-shadow: 
-        inset 0 4px 6px rgba(255, 255, 255, 0.6), 
-        inset 0 -4px 6px rgba(0, 0, 0, 0.2),
-        0 4px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.1s;
+.gel-button:active {
+    transform: scale(0.97); /* Tıklayınca hafif içeri çökme efekti */
 }
 
-/* Ekran çok küçüldüğünde (Mobilde) butonlar düzgün dursun diye tek sütuna düşür */
-@media (max-width: 600px) {
+/* Renk Paleti Gradyanları */
+.btn-cyan    { background: linear-gradient(to bottom, #00b4db, #0083b0); }
+.btn-purple  { background: linear-gradient(to bottom, #8e2de2, #4a00e0); }
+.btn-silver  { background: linear-gradient(to bottom, #e0e0e0, #999999); color: #333; }
+.btn-green   { background: linear-gradient(to bottom, #11998e, #27ae60); }
+.btn-red     { background: linear-gradient(to bottom, #ff416c, #d32f2f); }
+.btn-magenta { background: linear-gradient(to bottom, #da1b9a, #8e0e62); }
+.btn-orange  { background: linear-gradient(to bottom, #f12711, #f5af19); }
+.btn-blue    { background: linear-gradient(to bottom, #00c6ff, #0072ff); }
+.btn-black   { background: linear-gradient(to bottom, #434343, #000000); }
+.btn-lime    { background: linear-gradient(to bottom, #a8ff78, #78ffd6); color: #333; }
+
+/* ==========================================================================
+   6. RESPONSIVE TASARIM (Mobil Cihazlar İçin Ayar)
+   ========================================================================== */
+@media (max-width: 650px) {
     .buttons-grid { 
-        grid-template-columns: 1fr !important; 
+        grid-template-columns: 1fr !important; /* Mobilde dikey tek sıra olur */
     }
-}
-
-}
-
-/* Ekran çok küçüldüğünde (Mobilde) butonlar düzgün dursun diye tek sütuna düşür */
-@media (max-width: 600px) {
-    .buttons-grid { 
-        grid-template-columns: 1fr !important; 
+    .header-area {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
     }
 }
