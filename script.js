@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         hafizaMetinleri = {};
     }
     
-    // Hafıza boşsa veya bozuksa temiz 16 adet şablon buton aç
+    // Hafıza tamamen boşsa, başlangıç için temiz 16 adet şablon buton kur
     if (Object.keys(hafizaMetinleri).length === 0) {
         for (let i = 1; i <= 16; i++) {
             hafizaMetinleri[`btn_${i}`] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
     }
 
-    // 2. Butonları Ekrana Çizen Kusursuz Fonksiyon
+    // 2. Butonları Ekrana Çizen Fonksiyon
     function renderButtons() {
         if (!gridContainer) return;
         gridContainer.innerHTML = ""; // İçeriği tamamen temizle
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const btnData = hafizaMetinleri[btnId];
             const button = document.createElement("button");
             
-            // ID'den sadece sayısal numarayı çek (Örn: btn_5 -> 5)
+            // btn_5 gibi id değerinden sadece 5 rakamını ayıklar
             const btnSiraNo = btnId.split("_")[1] || "1";
             
             button.id = btnId;
@@ -47,10 +47,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 button.classList.add("edit-shake");
             }
             
-            // Etiket ismi varsa onu yaz, yoksa varsayılan "Metin [No]" yaz
+            // İsim verilmişse ismi yaz, yoksa varsayılan olarak "Metin [No]" yaz
             button.innerText = btnData.isim ? btnData.isim : `Metin ${btnSiraNo}`;
 
-            // Tıklama Olayı
+            // Tıklama Dinleyicisi
             button.addEventListener("click", () => {
                 if (isEditMode) {
                     openEditModal(btnId);
@@ -63,21 +63,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Butonları ilk açılışta yükle
+    // İlk açılışta buton listesini ekrana çiz
     renderButtons();
 
-    // 3. ➕ Yeni Buton Ekleme İşlevi
+    // 3. ➕ Yeni Buton Ekleme İşlevi (Sayı sınırı olmadan ekler)
     if (addBtn) {
         addBtn.addEventListener("click", () => {
-            // Mevcut buton sayısının bir fazlasını yeni ID yap
+            // Var olan buton sayısının bir fazlasını yeni ID yapar
             const yeniIndex = Object.keys(hafizaMetinleri).length + 1;
             const yeniId = `btn_${yeniIndex}`;
             
             hafizaMetinleri[yeniId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
             localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
             
-            renderButtons(); // Ekrana yeni butonu bas
-            openEditModal(yeniId); // Ayarlarını yapması için penceresini aç
+            renderButtons(); // Yeni butonu ekrana ekle
+            openEditModal(yeniId); // Ayarlarını girmesi için pencereyi otomatik aç
         });
     }
 
@@ -87,11 +87,11 @@ document.addEventListener("DOMContentLoaded", () => {
             isEditMode = !isEditMode;
             editModeBtn.classList.toggle("active", isEditMode);
             editModeBtn.innerText = isEditMode ? "⏸️ Çıkış" : "⚙️ Düzenle";
-            renderButtons(); // Titreme efekti için yeniden çiz
+            renderButtons(); // Sallanma efekti tetiklensin diye yeniden çiz
         });
     }
 
-    // 5. Seçilen Tip Değiştiğinde Form Alanlarını Güncelle
+    // 5. Seçilen Veri Tipi Değiştiğinde Formu Değiştirme
     if (selectType) {
         selectType.addEventListener("change", () => {
             updateDynamicInputs(selectType.value);
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         document.getElementById("modalTitle").innerText = "Buton Ayarları";
         document.getElementById("inputIsim").value = currentData.isim || "";
-        selectType.value = currentData.type || "standart";
+        selectType.value = currentData.tip || "standart";
         
         updateDynamicInputs(currentData.tip, currentData);
 
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editModal.style.display = "block";
     }
 
-    // 7. Ayarları Veritabanına Kaydet
+    // 7. Ayarları Hafızaya Kaydetme
     if (saveBtn) {
         saveBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
@@ -174,15 +174,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 8. 🗑️ Butonu Tamamen Silme Fonksiyonu
+    // 8. 🗑️ Butonu Tamamen Silme
     if (deleteBtn) {
         deleteBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
             
-            // Elemanı hafızadan kaldır
+            // Seçilen elemanı hafızadan temizle
             delete hafizaMetinleri[activeBtnId];
             
-            // Kalan tüm butonların ID sırasını baştan kur (Sıralama hatasını önler)
+            // Kalan butonların kimlik sırasını kaydırma yapmadan yeniden inşa et
             let yeniHafiza = {};
             Object.values(hafizaMetinleri).forEach((veri, idx) => {
                 yeniHafiza[`btn_${idx + 1}`] = veri;
@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
             editModal.style.display = "none";
-            renderButtons(); // Yeniden çiz
+            renderButtons();
         });
     }
 
@@ -225,10 +225,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Modal Pencereyi Kapatma İşlemleri
     if (closeModalBtn) closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
     window.addEventListener("click", (e) => { if(editModal && e.target === editModal) editModal.style.display = "none"; });
 
-    // Arka Plan Kontrolleri
+    // Genel Arka Plan Ayarları (Renk / Resim Yükleme)
     const bgColorPicker = document.getElementById("bgColorPicker");
     const bgImageUpper = document.getElementById("bgImageUpper");
     const resetBgBtn = document.getElementById("resetBg");
