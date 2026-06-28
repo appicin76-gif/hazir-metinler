@@ -1,3 +1,17 @@
+// ==========================================================================
+// PWA MOTORU: Uygulamanın Telefona Yüklenebilmesini Sağlar (Yeni Eklendi)
+// ==========================================================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then((reg) => console.log('PWA Motoru Başarıyla Aktif Edildi!', reg.scope))
+            .catch((err) => console.log('PWA Motoru Kurulum Hatası:', err));
+    });
+}
+
+// ==========================================================================
+// ANA UYGULAMA MANTIĞI
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
     const gridContainer = document.getElementById("mainGridContainer");
     const editModeBtn = document.getElementById("editModeBtn");
@@ -180,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
     window.addEventListener("click", (e) => { if(e.target === editModal) editModal.style.display = "none"; });
 
-    // Genel Arka Plan Kontrolleri (Önceki mantık korundu)
+    // Genel Arka Plan Kontrolleri (Yarım kalan alan tamamlandı)
     const bgColorPicker = document.getElementById("bgColorPicker");
     const bgImageUpper = document.getElementById("bgImageUpper");
     const resetBgBtn = document.getElementById("resetBg");
@@ -198,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     bgImageUpper.addEventListener("change", (e) => {
-        const file = e.target.files[0];
+        const file = e.target.files;
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
