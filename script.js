@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
         hafizaMetinleri = {};
     }
     
-    // Hafıza tamamen boşsa, başlangıç için temiz 16 adet şablon buton kur
+    // Hafıza boşsa temiz 16 adet şablon buton aç
     if (Object.keys(hafizaMetinleri).length === 0) {
         for (let i = 1; i <= 16; i++) {
             hafizaMetinleri[`btn_${i}`] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
@@ -31,13 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. Butonları Ekrana Çizen Fonksiyon
     function renderButtons() {
         if (!gridContainer) return;
-        gridContainer.innerHTML = ""; // İçeriği tamamen temizle
+        gridContainer.innerHTML = ""; 
         
         Object.keys(hafizaMetinleri).forEach((btnId) => {
             const btnData = hafizaMetinleri[btnId];
             const button = document.createElement("button");
             
-            // btn_5 gibi id değerinden sadece 5 rakamını ayıklar
             const btnSiraNo = btnId.split("_")[1] || "1";
             
             button.id = btnId;
@@ -47,10 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 button.classList.add("edit-shake");
             }
             
-            // İsim verilmişse ismi yaz, yoksa varsayılan olarak "Metin [No]" yaz
             button.innerText = btnData.isim ? btnData.isim : `Metin ${btnSiraNo}`;
 
-            // Tıklama Dinleyicisi
             button.addEventListener("click", () => {
                 if (isEditMode) {
                     openEditModal(btnId);
@@ -63,21 +60,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // İlk açılışta buton listesini ekrana çiz
+    // Butonları ilk açılışta yükle
     renderButtons();
 
-    // 3. ➕ Yeni Buton Ekleme İşlevi (Sayı sınırı olmadan ekler)
+    // 3. ➕ Yeni Buton Ekleme İşlevi
     if (addBtn) {
         addBtn.addEventListener("click", () => {
-            // Var olan buton sayısının bir fazlasını yeni ID yapar
             const yeniIndex = Object.keys(hafizaMetinleri).length + 1;
             const yeniId = `btn_${yeniIndex}`;
             
             hafizaMetinleri[yeniId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
             localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
             
-            renderButtons(); // Yeni butonu ekrana ekle
-            openEditModal(yeniId); // Ayarlarını girmesi için pencereyi otomatik aç
+            renderButtons(); 
+            openEditModal(yeniId); 
         });
     }
 
@@ -87,11 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
             isEditMode = !isEditMode;
             editModeBtn.classList.toggle("active", isEditMode);
             editModeBtn.innerText = isEditMode ? "⏸️ Çıkış" : "⚙️ Düzenle";
-            renderButtons(); // Sallanma efekti tetiklensin diye yeniden çiz
+            renderButtons(); 
         });
     }
 
-    // 5. Seçilen Veri Tipi Değiştiğinde Formu Değiştirme
+    // 5. Seçilen Tip Değiştiğinde Form Alanlarını Güncelle
     if (selectType) {
         selectType.addEventListener("change", () => {
             updateDynamicInputs(selectType.value);
@@ -144,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editModal.style.display = "block";
     }
 
-    // 7. Ayarları Hafızaya Kaydetme
+    // 7. Ayarları Veritabanına Kaydet
     if (saveBtn) {
         saveBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
@@ -174,15 +170,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 8. 🗑️ Butonu Tamamen Silme
+    // 8. Butonu Tamamen Silme Fonksiyonu
     if (deleteBtn) {
         deleteBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
             
-            // Seçilen elemanı hafızadan temizle
             delete hafizaMetinleri[activeBtnId];
             
-            // Kalan butonların kimlik sırasını kaydırma yapmadan yeniden inşa et
             let yeniHafiza = {};
             Object.values(hafizaMetinleri).forEach((veri, idx) => {
                 yeniHafiza[`btn_${idx + 1}`] = veri;
@@ -191,11 +185,11 @@ document.addEventListener("DOMContentLoaded", () => {
             
             localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
             editModal.style.display = "none";
-            renderButtons();
+            renderButtons(); 
         });
     }
 
-    // 9. Panoya Akıllı Kopyalama Motoru
+    // 9. Panoya Kopyalama Motoru
     function executeCopy(btnId) {
         const data = hafizaMetinleri[btnId];
         const button = document.getElementById(btnId);
@@ -225,11 +219,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Modal Pencereyi Kapatma İşlemleri
+    // Kapatma Olayları
     if (closeModalBtn) closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
     window.addEventListener("click", (e) => { if(editModal && e.target === editModal) editModal.style.display = "none"; });
 
-    // Genel Arka Plan Ayarları (Renk / Resim Yükleme)
+    // Arka Plan Ayarları (Renk / Resim)
     const bgColorPicker = document.getElementById("bgColorPicker");
     const bgImageUpper = document.getElementById("bgImageUpper");
     const resetBgBtn = document.getElementById("resetBg");
@@ -237,3 +231,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedBgColor = localStorage.getItem("appBgColor");
     const savedBgImage = localStorage.getItem("appBgImage");
     if (savedBgImage) document.body.style.backgroundImage = `url(${savedBgImage})`;
+    else if (savedBgColor) { document.body.style.backgroundColor = savedBgColor; if(bgColorPicker) bgColorPicker.value = savedBgColor; }
+
+    if (bgColorPicker) {
+        bgColorPicker.addEventListener("input", (e) => {
+            document.body.style.backgroundImage = "none";
+            document.body.style.backgroundColor = e.target.value;
+            localStorage.setItem("appBgColor", e.target.value);
+            localStorage.removeItem("appBgImage");
+        });
+    }
+
+    if (bgImageUpper) {
+        bgImageUpper.addEventListener("change", (e) => {
+            const file = e.target.files;
+            if (file && file[0]) {
