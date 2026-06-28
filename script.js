@@ -12,10 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let isEditMode = false;
     let activeBtnId = null;
 
-    // Yerel Hafızadan Verileri Yükle
-    let hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri")) || {};
+    // 1. Yerel Hafızadan Verileri Çek
+    let hafizaMetinleri = {};
+    try {
+        hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri")) || {};
+    } catch (e) {
+        hafizaMetinleri = {};
+    }
     
-    // Eğer hafıza tamamen boşsa, varsayılan olarak 16 adet boş buton tanımla
+    // Hafıza boşsa temiz 16 adet şablon buton aç
     if (Object.keys(hafizaMetinleri).length === 0) {
         for (let i = 1; i <= 16; i++) {
             hafizaMetinleri[`btn_${i}`] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
@@ -23,20 +28,25 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
     }
 
-    // Arayüze Butonları Çizen Fonksiyon
+    // 2. Butonları Ekrana Çizen Fonksiyon
     function renderButtons() {
         if (!gridContainer) return;
-        gridContainer.innerHTML = ""; // Önce temizle
+        gridContainer.innerHTML = ""; 
         
-        Object.keys(hafizaMetinleri).forEach((btnId, index) => {
+        Object.keys(hafizaMetinleri).forEach((btnId) => {
             const btnData = hafizaMetinleri[btnId];
             const button = document.createElement("button");
-            button.id = btnId;
-            button.className = `gel-button ${btnData.renk}`;
-            if (isEditMode) button.classList.add("edit-shake");
             
-            // İsim varsa ismi yaz, yoksa varsayılan numarayı yaz
-            button.innerText = btnData.isim ? btnData.isim : `Metin ${index + 1}`;
+            const btnSiraNo = btnId.split("_")[1] || "1";
+            
+            button.id = btnId;
+            button.className = `gel-button ${btnData.renk || 'btn-cyan'}`;
+            
+            if (isEditMode) {
+                button.classList.add("edit-shake");
+            }
+            
+            button.innerText = btnData.isim ? btnData.isim : `Metin ${btnSiraNo}`;
 
             button.addEventListener("click", () => {
                 if (isEditMode) {
@@ -50,10 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // İlk açılışta butonları yükle
     renderButtons();
 
-    // ➕ Yeni Buton Ekleme Fonksiyonu (Sınır yok, dinamik olarak ekler)
+    // 3. Yeni Buton Ekleme İşlevi
     if (addBtn) {
         addBtn.addEventListener("click", () => {
             const yeniIndex = Object.keys(hafizaMetinleri).length + 1;
@@ -62,12 +71,12 @@ document.addEventListener("DOMContentLoaded", () => {
             hafizaMetinleri[yeniId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
             localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
             
-            renderButtons(); // Arayüzü güncelle
-            openEditModal(yeniId); // Hemen ayar penceresini aç
+            renderButtons();
+            openEditModal(yeniId);
         });
     }
 
-    // Düzenle Modunu Aç/Kapat
+    // 4. Düzenle Modunu Aç/Kapat
     if (editModeBtn) {
         editModeBtn.addEventListener("click", () => {
             isEditMode = !isEditMode;
@@ -86,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateDynamicInputs(type, currentData = null) {
         if (!dynamicInputs) return;
         dynamicInputs.innerHTML = "";
+        
         if (type === "tab-ayrimli") {
             dynamicInputs.innerHTML = `
                 <label>1. Metin (Kullanıcı Adı):</label>
@@ -113,7 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function openEditModal(btnId) {
         if (!editModal) return;
         activeBtnId = btnId;
-        const currentData = hafizaMetinleri[btnId];
+        const currentData = hafizaMetinleri[btnId] || { isim: "", tip: "standart", renk: "btn-cyan" };
+        
         document.getElementById("modalTitle").innerText = "Buton Ayarları";
         document.getElementById("inputIsim").value = currentData.isim || "";
         selectType.value = currentData.tip || "standart";
@@ -130,20 +141,21 @@ document.addEventListener("DOMContentLoaded", () => {
         saveBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
             const type = selectType.value;
-            const chosenColor = document.querySelector('input[name="btnColor"]:checked').value;
+            const checkedRadio = document.querySelector('input[name="btnColor"]:checked');
+            const chosenColor = checkedRadio ? checkedRadio.value : "btn-cyan";
             const customName = document.getElementById("inputIsim").value;
 
             let dataPatch = { isim: customName, tip: type, renk: chosenColor };
 
             if (type === "tab-ayrimli") {
-                dataPatch.metin1 = document.getElementById("val1").value;
-                dataPatch.metin2 = document.getElementById("val2").value;
+                dataPatch.metin1 = document.getElementById("val1") ? document.getElementById("val1").value : "";
+                dataPatch.metin2 = document.getElementById("val2") ? document.getElementById("val2").value : "";
             } else if (type === "kart-ayrimli") {
-                dataPatch.veri1 = document.getElementById("val1").value;
-                dataPatch.veri2 = document.getElementById("val2").value;
-                dataPatch.veri3 = document.getElementById("val3").value;
+                dataPatch.veri1 = document.getElementById("val1") ? document.getElementById("val1").value : "";
+                dataPatch.veri2 = document.getElementById("val2") ? document.getElementById("val2").value : "";
+                dataPatch.veri3 = document.getElementById("val3") ? document.getElementById("val3").value : "";
             } else {
-                dataPatch.metin = document.getElementById("val1").value;
+                dataPatch.metin = document.getElementById("val1") ? document.getElementById("val1").value : "";
             }
 
             hafizaMetinleri[activeBtnId] = dataPatch;
@@ -157,10 +169,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (deleteBtn) {
         deleteBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
-            // Hafızadan tamamen kaldır
+            
             delete hafizaMetinleri[activeBtnId];
             
-            // Kalan butonların ID'lerini yeniden sırala (düzen bozulmasın diye)
             let yeniHafiza = {};
             Object.values(hafizaMetinleri).forEach((veri, idx) => {
                 yeniHafiza[`btn_${idx + 1}`] = veri;
@@ -178,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const button = document.getElementById(btnId);
         let content = "";
 
-        if (!data) return;
+        if (!data || !button) return;
 
         if (data.tip === "tab-ayrimli") {
             if(data.metin1 || data.metin2) content = `${data.metin1}\t${data.metin2}`;
@@ -236,12 +247,3 @@ document.addEventListener("DOMContentLoaded", () => {
                 reader.readAsDataURL(file[0]);
             }
         });
-    }
-
-    if (resetBgBtn) {
-        resetBgBtn.addEventListener("click", () => {
-            localStorage.clear();
-            location.reload();
-        });
-    }
-});
