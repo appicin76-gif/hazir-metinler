@@ -1,46 +1,186 @@
-// Hazır Metin Veritabanı ve Özel Giriş Özellikleri
-const hazirMetinler = {
-    btn1: { 
-        isim: "Sabah Giriş", 
-        metin: "Günaydın, dün kaldığımız yerden devam etmeye hazırım." 
-    },
-    btn2: { 
-        isim: "Teşekkür", 
-        metin: "Harika bir çalışma oldu, elinize sağlık." 
-    },
-    /* İKİ METİN ARASINDA TAB ÖZELLİĞİ (Örn: Kullanıcı Adı [TAB] Şifre) */
-    btn3: { 
-        isim: "Giriş Bilgileri (TAB)", 
-        tip: "tab-ayrimli",
-        metin1: "ornek_kullanici", 
-        metin2: "Sifre1234!" 
-    },
-    /* KREDİ KARTI İÇİN 3 KELİME / VERİ ARASINDA TAB ÖZELLİĞİ */
-    /* (Örn: Kart No [TAB] SKT [TAB] CVV) */
-    btn4: { 
-        isim: "Kredi Kartı (TAB)", 
-        tip: "kart-ayrimli",
-        veri1: "4355 8899 2233 1122", 
-        veri2: "12/29", 
-        veri3: "455" 
-    },
-    // Henüz özelleştirilmemiş (kullanıcı metin girmeden önceki) varsayılan butonlar:
-    btn5: { isim: "", metin: "" },
-    btn6: { isim: "", metin: "" },
-    btn7: { isim: "", metin: "" },
-    btn8: { isim: "", metin: "" },
-    btn9: { isim: "", metin: "" },
-    btn10: { isim: "", metin: "" },
-    btn11: { isim: "", metin: "" },
-    btn12: { isim: "", metin: "" },
-    btn13: { isim: "", metin: "" },
-    btn14: { isim: "", metin: "" },
-    btn15: { isim: "", metin: "" },
-    btn16: { isim: "", metin: "" }
-};
-
 document.addEventListener("DOMContentLoaded", () => {
-    // Üst Panel Ayarları (Hafızadan yükleme)
+    const gridContainer = document.getElementById("mainGridContainer");
+    const editModeBtn = document.getElementById("editModeBtn");
+    const editModal = document.getElementById("editModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const selectType = document.getElementById("selectType");
+    const dynamicInputs = document.getElementById("dynamicInputs");
+    const saveBtn = document.getElementById("saveBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+
+    let isEditMode = false;
+    let activeBtnId = null;
+
+    // 1. Yerel Hafızadan Buton Verilerini Yükle (Yoksa 16 adet boş şablon aç)
+    let hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri")) || {};
+    
+    // 2. 16 Adet Butonu Ekrana Bas ve Yapılandır
+    for (let i = 1; i <= 16; i++) {
+        const btnId = `btn_${i}`;
+        if (!hafizaMetinleri[btnId]) {
+            // Varsayılan boş şablon kurulumu
+            hafizaMetinleri[btnId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
+        }
+
+        const btnData = hafizaMetinleri[btnId];
+        const button = document.createElement("button");
+        button.id = btnId;
+        button.className = `gel-button ${btnData.renk}`;
+        button.innerText = btnData.isim ? btnData.isim : `Metin ${i}`;
+
+        // Buton Tıklama Mantığı (Moda göre değişir)
+        button.addEventListener("click", () => {
+            if (isEditMode) {
+                // DÜZENLEME MODU: Ayar Penceresini Aç
+                openEditModal(btnId);
+            } else {
+                // NORMAL MOD: Kopyalama Yap
+                executeCopy(btnId);
+            }
+        });
+
+        gridContainer.appendChild(button);
+    }
+    localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
+
+    // 3. Düzenle Modunu Açıp Kapatma Butonu
+    editModeBtn.addEventListener("click", () => {
+        isEditMode = !isEditMode;
+        editModeBtn.classList.toggle("active", isEditMode);
+        editModeBtn.innerText = isEditMode ? "⏸️ Çıkış Yap" : "⚙️ Düzenle";
+        
+        for (let i = 1; i <= 16; i++) {
+            const btn = document.getElementById(`btn_${i}`);
+            if (btn) btn.classList.toggle("edit-shake", isEditMode);
+        }
+    });
+
+    // 4. Seçilen Veri Tipine Göre Giriş Formunu Güncelleme (TAB Özellikleri)
+    selectType.addEventListener("change", () => {
+        updateDynamicInputs(selectType.value);
+    });
+
+    function updateDynamicInputs(type, currentData = null) {
+        dynamicInputs.innerHTML = "";
+        if (type === "tab-ayrimli") {
+            dynamicInputs.innerHTML = `
+                <label>1. Metin (Örn: Kullanıcı Adı):</label>
+                <input type="text" id="val1" value="${currentData?.metin1 || ''}">
+                <label>2. Metin (Örn: Şifre):</label>
+                <input type="text" id="val2" value="${currentData?.metin2 || ''}">
+            `;
+        } else if (type === "kart-ayrimli") {
+            dynamicInputs.innerHTML = `
+                <label>1. Kelime/Veri (Örn: Kart Numarası):</label>
+                <input type="text" id="val1" value="${currentData?.veri1 || ''}">
+                <label>2. Kelime/Veri (Örn: SKT):</label>
+                <input type="text" id="val2" value="${currentData?.veri2 || ''}">
+                <label>3. Kelime/Veri (Örn: CVV):</label>
+                <input type="text" id="val3" value="${currentData?.veri3 || ''}">
+            `;
+        } else {
+            dynamicInputs.innerHTML = `
+                <label>Kopyalanacak Tek Parça Metin:</label>
+                <input type="text" id="val1" value="${currentData?.metin || ''}">
+            `;
+        }
+    }
+
+    // 5. Ayar Penceresini (Modal) Doldurup Açma
+    function openEditModal(btnId) {
+        activeBtnId = btnId;
+        const currentData = hafizaMetinleri[btnId];
+        document.getElementById("modalTitle").innerText = `${btnId.replace("_", " ").toUpperCase()} Ayarları`;
+        document.getElementById("inputIsim").value = currentData.isim || "";
+        selectType.value = currentData.tip || "standart";
+        
+        updateDynamicInputs(currentData.tip, currentData);
+
+        // Kayıtlı rengi seçili yap
+        const radios = document.getElementsByName("btnColor");
+        radios.forEach(r => { if(r.value === currentData.renk) r.checked = true; });
+
+        editModal.style.display = "block";
+    }
+
+    // 6. Ayarları Kaydetme Butonu
+    saveBtn.addEventListener("click", () => {
+        if (!activeBtnId) return;
+        const type = selectType.value;
+        const chosenColor = document.querySelector('input[name="btnColor"]:checked').value;
+        const customName = document.getElementById("inputIsim").value;
+
+        let dataPatch = { isim: customName, tip: type, renk: chosenColor };
+
+        if (type === "tab-ayrimli") {
+            dataPatch.metin1 = document.getElementById("val1").value;
+            dataPatch.metin2 = document.getElementById("val2").value;
+        } else if (type === "kart-ayrimli") {
+            dataPatch.veri1 = document.getElementById("val1").value;
+            dataPatch.veri2 = document.getElementById("val2").value;
+            dataPatch.veri3 = document.getElementById("val3").value;
+        } else {
+            dataPatch.metin = document.getElementById("val1").value;
+        }
+
+        // Hafızayı Güncelle ve Görseli Yenile
+        hafizaMetinleri[activeBtnId] = dataPatch;
+        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
+
+        const btnEl = document.getElementById(activeBtnId);
+        btnEl.className = `gel-button ${chosenColor} edit-shake`;
+        btnEl.innerText = customName ? customName : `Metin ${activeBtnId.split("_")[1]}`;
+
+        editModal.style.display = "none";
+    });
+
+    // 7. Butonu Boşaltma/Silme Butonu
+    deleteBtn.addEventListener("click", () => {
+        if (!activeBtnId) return;
+        const num = activeBtnId.split("_")[1];
+        hafizaMetinleri[activeBtnId] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
+        localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
+
+        const btnEl = document.getElementById(activeBtnId);
+        btnEl.className = `gel-button btn-cyan edit-shake`;
+        btnEl.innerText = `Metin ${num}`;
+
+        editModal.style.display = "none";
+    });
+
+    // 8. Panoya Akıllı Kopyalama İşlemi Execution
+    function executeCopy(btnId) {
+        const data = hafizaMetinleri[btnId];
+        const button = document.getElementById(btnId);
+        let content = "";
+
+        if (data.tip === "tab-ayrimli") {
+            if(data.metin1 || data.metin2) content = `${data.metin1}\t${data.metin2}`;
+        } else if (data.tip === "kart-ayrimli") {
+            if(data.veri1 || data.veri2 || data.veri3) content = `${data.veri1}\t${data.veri2}\t${data.veri3}`;
+        } else {
+            content = data.metin || "";
+        }
+
+        if (!content) {
+            const oldTxt = button.innerText;
+            button.innerText = "⚠️ İçi Boş!";
+            setTimeout(() => button.innerText = oldTxt, 1000);
+            return;
+        }
+
+        navigator.clipboard.writeText(content).then(() => {
+            const oldTxt = button.innerText;
+            button.innerText = "📋 Kopyalandı!";
+            setTimeout(() => button.innerText = oldTxt, 1200);
+        });
+    }
+
+    // Modal Kapatma Olayları
+    closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
+    window.addEventListener("click", (e) => { if(e.target === editModal) editModal.style.display = "none"; });
+
+    // Genel Arka Plan Kontrolleri (Önceki mantık korundu)
     const bgColorPicker = document.getElementById("bgColorPicker");
     const bgImageUpper = document.getElementById("bgImageUpper");
     const resetBgBtn = document.getElementById("resetBg");
@@ -50,50 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedBgImage) document.body.style.backgroundImage = `url(${savedBgImage})`;
     else if (savedBgColor) { document.body.style.backgroundColor = savedBgColor; bgColorPicker.value = savedBgColor; }
 
-    // Butonları Yapılandırma Döngüsü
-    Object.keys(hazirMetinler).forEach((id, index) => {
-        const button = document.getElementById(id);
-        if (!button) return;
-
-        const veri = hazirMetinler[id];
-        
-        // 1. Kural: Eğer özel bir isim verilmişse onu yaz, yoksa varsayılan olarak "Metin [No]" yaz
-        const butonNumarasi = index + 1;
-        const gorunecekIsim = veri.isim ? veri.isim : `Metin ${butonNumarasi}`;
-        button.innerText = gorunecekIsim;
-
-        // 2. Kural: Tıklama ve Kopyalama Mantığı
-        button.addEventListener("click", () => {
-            let kopyalanacakIcerik = "";
-
-            // Tip kontrolüne göre panoya gidecek veriyi hazırlıyoruz
-            if (veri.tip === "tab-ayrimli") {
-                // İki metin arasında TAB karakteri (\t) ekler
-                kopyalanacakIcerik = `${veri.metin1}\t${veri.metin2}`;
-            } else if (veri.tip === "kart-ayrimli") {
-                // 3 kelime / veri arasında TAB karakteri (\t) ekler
-                kopyalanacakIcerik = `${veri.veri1}\t${veri.veri2}\t${veri.veri3}`;
-            } else {
-                // Standart tek parça düz metin
-                kopyalanacakIcerik = veri.metin;
-            }
-
-            // Eğer buton boşsa kopyalama yapma
-            if (!kopyalanacakIcerik) {
-                button.innerText = "⚠️ İçi Boş!";
-                setTimeout(() => { button.innerText = gorunecekIsim; }, 1000);
-                return;
-            }
-
-            // Panoya Kopyalama İşlemi
-            navigator.clipboard.writeText(kopyalanacakIcerik).then(() => {
-                button.innerText = "📋 Kopyalandı!";
-                setTimeout(() => { button.innerText = gorunecekIsim; }, 1200);
-            });
-        });
-    });
-
-    // Arka Plan Kontrolleri
     bgColorPicker.addEventListener("input", (e) => {
         document.body.style.backgroundImage = "none";
         document.body.style.backgroundColor = e.target.value;
@@ -114,7 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     resetBgBtn.addEventListener("click", () => {
-        localStorage.clear();
+        localStorage.removeItem("appBgColor");
+        localStorage.removeItem("appBgImage");
         document.body.style.backgroundImage = "none";
         document.body.style.backgroundColor = "#eef5fc";
         bgColorPicker.value = "#eef5fc";
