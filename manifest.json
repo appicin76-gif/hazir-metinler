@@ -1,0 +1,17 @@
+{
+  "short_name": "Pano",
+  "name": "Hızlı Yanıt Paneli",
+  "icons": [
+    {
+      "src": "https://flaticon.com",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#f0f2f5",
+  "theme_color": "#007bff",
+  "display": "standalone",
+  "orientation": "portrait"
+}
