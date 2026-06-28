@@ -12,32 +12,37 @@ document.addEventListener("DOMContentLoaded", () => {
     let isEditMode = false;
     let activeBtnId = null;
 
-    // 1. Yerel Hafızadan Verileri Çek
+    // Güvenli Hafıza Yüklemesi
     let hafizaMetinleri = {};
     try {
-        hafizaMetinleri = JSON.parse(localStorage.getItem("hazirMetinVerileri")) || {};
+        const localData = localStorage.getItem("hazirMetinVerileri");
+        if (localData) {
+            hafizaMetinleri = JSON.parse(localData);
+        }
     } catch (e) {
         hafizaMetinleri = {};
     }
     
-    // Hafıza boşsa temiz 16 adet şablon buton aç
-    if (Object.keys(hafizaMetinleri).length === 0) {
+    // Hafıza kontrolü: Eğer butonlar eksik veya yoksa zorunlu olarak 16 adete tamamla
+    if (!hafizaMetinleri || Object.keys(hafizaMetinleri).length === 0) {
+        hafizaMetinleri = {};
         for (let i = 1; i <= 16; i++) {
             hafizaMetinleri[`btn_${i}`] = { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
         }
         localStorage.setItem("hazirMetinVerileri", JSON.stringify(hafizaMetinleri));
     }
 
-    // 2. Butonları Ekrana Çizen Fonksiyon
+    // Butonları Çizen Ana Motor
     function renderButtons() {
         if (!gridContainer) return;
         gridContainer.innerHTML = ""; 
         
         Object.keys(hafizaMetinleri).forEach((btnId) => {
-            const btnData = hafizaMetinleri[btnId];
+            const btnData = hafizaMetinleri[btnId] || { isim: "", tip: "standart", renk: "btn-cyan", metin: "" };
             const button = document.createElement("button");
             
-            const btnSiraNo = btnId.split("_")[1] || "1";
+            const parcalar = btnId.split("_");
+            const btnSiraNo = parcalar.length > 1 ? parcalar[1] : "1";
             
             button.id = btnId;
             button.className = `gel-button ${btnData.renk || 'btn-cyan'}`;
@@ -60,10 +65,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Butonları ilk açılışta yükle
+    // İlk Çizim Tetiği
     renderButtons();
 
-    // 3. ➕ Yeni Buton Ekleme İşlevi
+    // Yeni Buton Ekleme
     if (addBtn) {
         addBtn.addEventListener("click", () => {
             const yeniIndex = Object.keys(hafizaMetinleri).length + 1;
@@ -77,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 4. ⚙️ Düzenle Modunu Aç/Kapat
+    // Düzenle Modu Aç/Kapat
     if (editModeBtn) {
         editModeBtn.addEventListener("click", () => {
             isEditMode = !isEditMode;
@@ -87,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 5. Seçilen Tip Değiştiğinde Form Alanlarını Güncelle
     if (selectType) {
         selectType.addEventListener("change", () => {
             updateDynamicInputs(selectType.value);
@@ -122,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 6. Ayar Penceresini (Modal) Doldur ve Aç
     function openEditModal(btnId) {
         if (!editModal) return;
         activeBtnId = btnId;
@@ -130,9 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
         
         document.getElementById("modalTitle").innerText = "Buton Ayarları";
         document.getElementById("inputIsim").value = currentData.isim || "";
-        selectType.value = currentData.tip || "standart";
+        selectType.value = currentData.type || "standart";
         
-        updateDynamicInputs(currentData.tip, currentData);
+        updateDynamicInputs(currentData.type, currentData);
 
         const radios = document.getElementsByName("btnColor");
         radios.forEach(r => { if(r.value === currentData.renk) r.checked = true; });
@@ -140,7 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
         editModal.style.display = "block";
     }
 
-    // 7. Ayarları Veritabanına Kaydet
     if (saveBtn) {
         saveBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
@@ -170,7 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 8. Butonu Tamamen Silme Fonksiyonu
     if (deleteBtn) {
         deleteBtn.addEventListener("click", () => {
             if (!activeBtnId) return;
@@ -189,7 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 9. Panoya Kopyalama Motoru
     function executeCopy(btnId) {
         const data = hafizaMetinleri[btnId];
         const button = document.getElementById(btnId);
@@ -219,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Kapatma Olayları
     if (closeModalBtn) closeModalBtn.addEventListener("click", () => editModal.style.display = "none");
     window.addEventListener("click", (e) => { if(editModal && e.target === editModal) editModal.style.display = "none"; });
 
@@ -246,3 +245,4 @@ document.addEventListener("DOMContentLoaded", () => {
         bgImageUpper.addEventListener("change", (e) => {
             const file = e.target.files;
             if (file && file[0]) {
+                const reader = new FileReader();
