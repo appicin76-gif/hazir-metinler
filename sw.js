@@ -1,25 +1,41 @@
-// sw.js dosyanızın en üstündeki ismi değiştirin
-const CACHE_NAME = 'hazir-metinler-cache-v2'; // v1 ise v2 yapın
-
+const CACHE_NAME = 'hazir-metin-v3';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './manifest.json'
 ];
 
-// Yeni kodların hemen devreye girmesi için "activate" olayını güncelleyin
+// Kurulum ve Dosyaları Önbelleğe Alma
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    }).then(() => self.skipWaiting())
+  );
+});
+
+// Eski Önbellekleri Temizleme ve Yeni Kodları Aktif Etme
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            return caches.delete(key); // Eski önbelleği siler
+            return caches.delete(key);
           }
         })
       );
-    }).then(() => self.clients.claim()) // Yeni dosyaları hemen zorunlu kılar
+    }).then(() => self.clients.claim())
+  );
+});
+
+// Ağ İsteklerini Yakalama (Çevrimdışı Çalışma Desteği)
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((cachedResponse) => {
+      return cachedResponse || fetch(e.request);
+    })
   );
 });
