@@ -1,4 +1,6 @@
-const CACHE_NAME = 'hazir-metin-v3';
+// Versiyon numarasını v3'ten v4'e yükselterek tarayıcıya "eski hafızayı sil, yenileri yükle" talimatı veriyoruz
+const CACHE_NAME = 'hazir-metin-v4'; 
+
 const ASSETS = [
   './',
   './index.html',
@@ -23,7 +25,7 @@ self.addEventListener('activate', (e) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            return caches.delete(key);
+            return caches.delete(key); // Eski v3 havuzunu tamamen siler
           }
         })
       );
