@@ -37,6 +37,54 @@
     position: relative;
     overflow: hidden;
     transition: transform 0.1s;
+    /* Ana Paneli İlk Tasarımdaki Gibi Mavi Çerçeveli Yapıyoruz */
+.app-container {
+    width: 95%;
+    max-width: 800px;
+    background: #f4f9ff;          /* İç arka plan rengi */
+    border: 1px solid #bce0fd;    /* Mavi çerçeve çizgisi */
+    border-radius: 8px;           /* Köşe ovali */
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin: 20px auto;            /* Ortalamak için */
+    box-sizing: border-box;
+}
+
+/* Butonları Yan Yana İkili Sıralayan Grid Düzeni */
+.buttons-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* Yan yana iki eşit sütun */
+    gap: 15px !important;                      /* Butonlar arası boşluk */
+    width: 100%;
+}
+
+/* Jel Kapsül Butonların Genişlik Ayarı */
+.gel-button {
+    width: 100% !important; /* Grid hücresini tam kaplasın diye */
+    max-width: none !important;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 50px;
+    box-shadow: 
+        inset 0 4px 6px rgba(255, 255, 255, 0.6), 
+        inset 0 -4px 6px rgba(0, 0, 0, 0.2),
+        0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.1s;
+}
+
+/* Ekran çok küçüldüğünde (Mobilde) butonlar düzgün dursun diye tek sütuna düşür */
+@media (max-width: 600px) {
+    .buttons-grid { 
+        grid-template-columns: 1fr !important; 
+    }
+}
+
 }
 
 /* Ekran çok küçüldüğünde (Mobilde) butonlar düzgün dursun diye tek sütuna düşür */
